@@ -2,7 +2,7 @@
 <html lang="zh-CN" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <title>AI 视频生成器 · 高性能版</title>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
@@ -11,15 +11,8 @@
 
     <script type="importmap">
         {"imports": {
-            "@material/web/": "https://esm.run/@material/web/",
-                "mp4-muxer": "https://esm.run/mp4-muxer@5.2.1"
+            "mp4-muxer": "https://esm.run/mp4-muxer@5.2.1"
         }}
-    </script>
-
-    <script type="module">
-        import '@material/web/all.js';
-        import { styles as typescaleStyles } from '@material/web/typography/md-typescale-styles.js';
-        document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
     </script>
 
     <style>
@@ -73,10 +66,7 @@
         .task-actions button,
         .task-details-header,
         .mini-progress-btn,
-        .floating-progress-header button,
-        input,
-        select,
-        textarea {
+        .floating-progress-header button {
             user-select: none;
             -webkit-user-select: none;
             cursor: pointer;
@@ -106,6 +96,117 @@
             transition: background-color .3s, color .3s;
             isolation: isolate;
         }
+        /* 原生控件样式（替换 Material Web） */
+        .custom-input, .custom-select, .custom-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--md-sys-color-outline);
+            background-color: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            appearance: none;
+            user-select: auto;
+            -webkit-user-select: auto;
+        }
+        .custom-input:focus, .custom-select:focus, .custom-textarea:focus {
+            border-color: var(--md-sys-color-primary);
+            box-shadow: 0 0 0 3px var(--md-sys-color-primary-container);
+            outline: none;
+        }
+        .custom-input::placeholder, .custom-textarea::placeholder {
+            color: var(--md-sys-color-on-surface-variant);
+            opacity: 0.5;
+        }
+        .custom-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .custom-select {
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23757780%22%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+        }
+        /* 隐藏数字输入框的上下箭头 */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .btn-filled, .btn-outlined {
+            flex: 1;
+            min-width: 110px;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-spring);
+            font-family: inherit;
+            border: 1px solid transparent;
+        }
+        .btn-filled .material-icons, .btn-outlined .material-icons {
+            font-size: 18px;
+        }
+        .btn-filled {
+            background-color: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+        }
+        .btn-filled:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-outlined {
+            background-color: transparent;
+            color: var(--md-sys-color-primary);
+            border-color: var(--md-sys-color-outline);
+        }
+        .btn-outlined:hover {
+            background-color: var(--md-sys-color-secondary-container);
+            border-color: var(--md-sys-color-primary);
+            transform: translateY(-1px);
+        }
+        .btn-filled:disabled, .btn-outlined:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        /* 自定义进度条 */
+        .custom-progress {
+            width: 100%;
+            height: 4px;
+            background-color: var(--md-sys-color-surface-variant);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        .custom-progress-fill {
+            height: 100%;
+            background-color: var(--md-sys-color-primary);
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+        .custom-progress-fill.indeterminate {
+            width: 40% !important;
+            animation: indeterminate 1.2s infinite;
+        }
+        @keyframes indeterminate {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(300%); }
+        }
+
         .page-scroll {
             flex: 1;
             overflow-y: auto;
@@ -198,35 +299,17 @@
             display: block;
         }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes navPop {
-            0% {
-                transform: scale(.96);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(.96); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         .app-header {
             display: flex;
@@ -245,21 +328,11 @@
             font-weight: 600;
             white-space: nowrap;
         }
-        .app-header .spacer {
-            flex: 1;
-        }
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .app-header .spacer { flex: 1; }
+        .header-actions { display: flex; align-items: center; gap: 8px; }
         .theme-toggle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
             color: var(--md-sys-color-on-surface-variant);
         }
         .theme-toggle:hover {
@@ -267,31 +340,22 @@
             transform: rotate(15deg);
         }
         .theme-color-picker {
-            display: flex;
-            gap: 6px;
-            align-items: center;
+            display: flex; gap: 6px; align-items: center;
             background-color: var(--md-sys-color-surface-variant);
-            padding: 4px 8px;
-            border-radius: 20px;
+            padding: 4px 8px; border-radius: 20px;
         }
         .color-dot {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
+            width: 22px; height: 22px; border-radius: 50%;
             border: 2px solid transparent;
             transition: transform .2s, border-color .2s, box-shadow .2s;
         }
-        .color-dot:hover {
-            transform: scale(1.15);
-        }
+        .color-dot:hover { transform: scale(1.15); }
         .color-dot.active {
             border-color: var(--md-sys-color-on-surface);
             box-shadow: 0 0 0 4px var(--md-sys-color-primary-container);
         }
         .card {
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 16px;
+            border-radius: 20px; padding: 20px; margin-bottom: 16px;
             animation: fadeInUp .5s var(--ease-out-expo) both;
             transition: transform .2s, box-shadow .2s;
         }
@@ -300,302 +364,124 @@
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
         }
         .card-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 15px; font-weight: 600; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
         }
         .card-title .material-icons-outlined {
-            font-size: 20px;
-            color: var(--md-sys-color-primary);
+            font-size: 20px; color: var(--md-sys-color-primary);
         }
-        .form-group {
-            margin-bottom: 18px;
-        }
+        .form-group { margin-bottom: 18px; }
         .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: var(--md-sys-color-on-surface-variant);
+            display: block; font-size: 13px; font-weight: 500;
+            margin-bottom: 6px; color: var(--md-sys-color-on-surface-variant);
         }
-        md-outlined-text-field,
-        md-filled-text-field,
-        md-outlined-select {
-            width: 100%;
-        }
-        .chip-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
+        .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
         .chip {
-            padding: 6px 14px;
-            border-radius: 16px;
-            border: 1px solid var(--md-sys-color-outline);
-            font-size: 13px;
+            padding: 6px 14px; border-radius: 16px;
+            border: 1px solid var(--md-sys-color-outline); font-size: 13px;
         }
-        .chip:hover {
-            border-color: var(--md-sys-color-primary);
-            transform: translateY(-2px);
-        }
+        .chip:hover { border-color: var(--md-sys-color-primary); transform: translateY(-2px); }
         .chip.active {
             background-color: var(--md-sys-color-primary-container);
             border-color: var(--md-sys-color-primary);
-            color: var(--md-sys-color-on-primary-container);
-            font-weight: 600;
+            color: var(--md-sys-color-on-primary-container); font-weight: 600;
         }
         .style-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 8px;
-            margin-bottom: 16px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 8px; margin-bottom: 16px;
         }
         .style-chip {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            padding: 10px 4px;
-            border-radius: 14px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 4px; padding: 10px 4px; border-radius: 14px;
             border: 2px solid var(--md-sys-color-outline);
             background-color: var(--md-sys-color-surface);
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--md-sys-color-on-surface-variant);
+            font-size: 11px; font-weight: 500; color: var(--md-sys-color-on-surface-variant);
         }
-        .style-chip:hover {
-            border-color: var(--md-sys-color-primary);
-            transform: scale(1.04);
-        }
+        .style-chip:hover { border-color: var(--md-sys-color-primary); transform: scale(1.04); }
         .style-chip.active {
             border-color: var(--md-sys-color-primary);
             background-color: var(--md-sys-color-primary-container);
-            color: var(--md-sys-color-on-primary-container);
-            font-weight: 600;
+            color: var(--md-sys-color-on-primary-container); font-weight: 600;
         }
-        .btn-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-        md-filled-button,
-        md-tonal-button,
-        md-outlined-button {
-            flex: 1;
-            min-width: 110px;
-        }
-        .slider-group {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            margin-bottom: 14px;
-        }
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            color: var(--md-sys-color-on-surface-variant);
-        }
-        .slider-value {
-            font-weight: 600;
-            color: var(--md-sys-color-primary);
-            font-variant-numeric: tabular-nums;
-            min-width: 90px;
-            text-align: right;
-            font-size: 13px;
-        }
-        .task-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+        .task-list { display: flex; flex-direction: column; gap: 12px; }
         .task-empty {
-            text-align: center;
-            color: var(--md-sys-color-on-surface-variant);
-            font-size: 13px;
-            padding: 32px 16px;
-            border: 1px dashed var(--md-sys-color-outline);
-            border-radius: 16px;
+            text-align: center; color: var(--md-sys-color-on-surface-variant); font-size: 13px;
+            padding: 32px 16px; border: 1px dashed var(--md-sys-color-outline); border-radius: 16px;
         }
         .task-card {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 16px;
+            display: flex; gap: 12px; padding: 12px; border-radius: 16px;
             background-color: var(--glass-surface);
             animation: fadeInUp .4s var(--ease-out-expo) both;
             transition: transform .25s, box-shadow .25s;
         }
-        .task-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
-        }
+        .task-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1); }
         .task-cover {
-            width: 120px;
-            height: 68px;
-            border-radius: 10px;
-            flex-shrink: 0;
-            overflow: hidden;
+            width: 120px; height: 68px; border-radius: 10px; flex-shrink: 0; overflow: hidden;
             background: linear-gradient(135deg, #3a1c71, #d76d77);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
-        .task-cover img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .task-body {
-            flex: 1;
-            min-width: 0;
-        }
+        .task-cover img { width: 100%; height: 100%; object-fit: cover; }
+        .task-body { flex: 1; min-width: 0; }
         .task-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            font-weight: 600; font-size: 15px; margin-bottom: 4px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-        .task-status {
-            font-size: 12px;
-            color: var(--md-sys-color-on-surface-variant);
-            margin-bottom: 8px;
-        }
+        .task-status { font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 8px; }
         .task-progress-bar {
-            height: 4px;
-            border-radius: 2px;
-            background-color: var(--md-sys-color-surface-variant);
-            overflow: hidden;
-            margin-bottom: 8px;
-            position: relative;
+            height: 4px; border-radius: 2px; background-color: var(--md-sys-color-surface-variant);
+            overflow: hidden; margin-bottom: 8px; position: relative;
         }
         .task-progress-fill {
-            height: 100%;
-            background-color: var(--md-sys-color-primary);
-            transition: width .2s;
-            width: 0;
+            height: 100%; background-color: var(--md-sys-color-primary);
+            transition: width .2s; width: 0;
         }
         .task-progress-fill.indeterminate {
-            width: 40% !important;
-            animation: indeterminate 1.2s infinite;
+            width: 40% !important; animation: indeterminate 1.2s infinite;
         }
-        @keyframes indeterminate {
-            0% {
-                transform: translateX(-100%);
-            }
-            100% {
-                transform: translateX(300%);
-            }
-        }
-        .task-actions {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+        .task-actions { display: flex; gap: 6px; flex-wrap: wrap; }
         .task-actions button {
-            padding: 4px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--md-sys-color-outline);
-            font-size: 12px;
+            padding: 4px 12px; border-radius: 12px;
+            border: 1px solid var(--md-sys-color-outline); font-size: 12px;
         }
         .task-actions button:hover {
-            background-color: var(--md-sys-color-secondary-container);
-            transform: translateY(-1px);
+            background-color: var(--md-sys-color-secondary-container); transform: translateY(-1px);
         }
         .task-actions button.primary {
             background-color: var(--md-sys-color-primary);
-            color: var(--md-sys-color-on-primary);
-            border-color: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary); border-color: var(--md-sys-color-primary);
         }
         .task-details-header {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            color: var(--md-sys-color-primary);
-            font-size: 12px;
-            font-weight: 500;
+            display: flex; align-items: center; gap: 4px;
+            color: var(--md-sys-color-primary); font-size: 12px; font-weight: 500;
             padding: 8px 0 4px;
         }
-        .task-details-header .expand-icon {
-            font-size: 18px;
-            transition: transform .2s;
-        }
-        .task-details-header .expand-icon.open {
-            transform: rotate(180deg);
-        }
+        .task-details-header .expand-icon { font-size: 18px; transition: transform .2s; }
+        .task-details-header .expand-icon.open { transform: rotate(180deg); }
         .task-code {
-            background-color: var(--code-bg);
-            color: var(--code-fg);
-            padding: 10px;
-            border-radius: 8px;
-            max-height: 260px;
-            overflow: auto;
-            font-family: monospace;
-            font-size: 11px;
-            white-space: pre-wrap;
-            line-height: 1.5;
-            margin-top: 4px;
+            background-color: var(--code-bg); color: var(--code-fg);
+            padding: 10px; border-radius: 8px; max-height: 260px; overflow: auto;
+            font-family: monospace; font-size: 11px; white-space: pre-wrap;
+            line-height: 1.5; margin-top: 4px;
         }
         .balance-info {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: var(--md-sys-color-on-surface-variant);
-            padding: 4px 0;
-            flex-wrap: wrap;
+            display: flex; align-items: center; gap: 6px; font-size: 12px;
+            color: var(--md-sys-color-on-surface-variant); padding: 4px 0; flex-wrap: wrap;
         }
-        .balance-info .delta {
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
-        .balance-info .delta.positive {
-            color: var(--md-sys-color-error);
-        }
-        .balance-info .delta.negative {
-            color: var(--md-sys-color-success);
-        }
-        .balance-info .delta.zero {
-            color: var(--md-sys-color-on-surface-variant);
-        }
+        .balance-info .delta { font-weight: 600; font-variant-numeric: tabular-nums; }
+        .balance-info .delta.positive { color: var(--md-sys-color-error); }
+        .balance-info .delta.negative { color: var(--md-sys-color-success); }
+        .balance-info .delta.zero { color: var(--md-sys-color-on-surface-variant); }
         .preview-container {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background-color: #0d0d0d;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-            margin-bottom: 14px;
-            border: 1px solid var(--md-sys-color-outline);
-            transform: translateZ(0);
+            width: 100%; aspect-ratio: 16 / 9; background-color: #0d0d0d;
+            border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative; margin-bottom: 14px;
+            border: 1px solid var(--md-sys-color-outline); transform: translateZ(0);
         }
-        .preview-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background-color: #000;
-        }
+        .preview-container iframe { width: 100%; height: 100%; border: none; background-color: #000; }
         .status-bar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-            margin-bottom: 16px;
-            font-weight: 500;
+            display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+            border-radius: 12px; font-size: 13px; margin-bottom: 16px; font-weight: 500;
         }
         .status-bar.idle {
             background-color: var(--md-sys-color-surface-variant);
@@ -614,327 +500,145 @@
             color: var(--md-sys-color-error);
         }
         .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            background-color: currentColor;
+            width: 8px; height: 8px; border-radius: 50%;
+            flex-shrink: 0; background-color: currentColor;
         }
-        .status-dot.loading {
-            animation: pulse 1s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.3;
-            }
-        }
+        .status-dot.loading { animation: pulse 1s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .balance-card {
             background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-primary-container) 100%);
-            color: var(--md-sys-color-on-primary);
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 16px;
-            animation: fadeInUp .6s var(--ease-out-expo) both;
+            color: var(--md-sys-color-on-primary); border-radius: 20px; padding: 24px;
+            margin-bottom: 16px; animation: fadeInUp .6s var(--ease-out-expo) both;
             transition: transform .2s, box-shadow .2s;
         }
-        .balance-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
-        }
-        .balance-card .label {
-            font-size: 13px;
-            opacity: 0.85;
-            margin-bottom: 4px;
-        }
-        .balance-card .amount {
-            font-size: 36px;
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-        }
-        .balance-card .currency {
-            font-size: 16px;
-            font-weight: 500;
-            opacity: 0.9;
-        }
-        .balance-card .sub {
-            font-size: 12px;
-            opacity: 0.75;
-            margin-top: 8px;
-        }
+        .balance-card:hover { transform: translateY(-3px); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18); }
+        .balance-card .label { font-size: 13px; opacity: 0.85; margin-bottom: 4px; }
+        .balance-card .amount { font-size: 36px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .balance-card .currency { font-size: 16px; font-weight: 500; opacity: 0.9; }
+        .balance-card .sub { font-size: 12px; opacity: 0.75; margin-top: 8px; }
         .balance-detail {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--md-sys-color-surface-variant);
-            font-size: 14px;
+            display: flex; justify-content: space-between; padding: 10px 0;
+            border-bottom: 1px solid var(--md-sys-color-surface-variant); font-size: 14px;
         }
-        .balance-detail:last-child {
-            border-bottom: none;
-        }
-        .balance-detail .key {
-            color: var(--md-sys-color-on-surface-variant);
-        }
-        .balance-detail .val {
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
+        .balance-detail:last-child { border-bottom: none; }
+        .balance-detail .key { color: var(--md-sys-color-on-surface-variant); }
+        .balance-detail .val { font-weight: 600; font-variant-numeric: tabular-nums; }
         .log-area {
-            background-color: var(--code-bg);
-            color: var(--code-fg);
-            border-radius: 12px;
-            padding: 12px;
-            font-family: monospace;
-            font-size: 12px;
-            line-height: 1.6;
-            max-height: 200px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
+            background-color: var(--code-bg); color: var(--code-fg);
+            border-radius: 12px; padding: 12px; font-family: monospace;
+            font-size: 12px; line-height: 1.6; max-height: 200px; overflow-y: auto;
+            white-space: pre-wrap; word-break: break-all;
         }
-        .log-area .log-time {
-            color: var(--code-time);
-        }
-        .log-area .log-info {
-            color: var(--code-info);
-        }
-        .log-area .log-err {
-            color: var(--code-err);
-        }
-        .log-area .log-ok {
-            color: var(--code-ok);
-        }
+        .log-area .log-time { color: var(--code-time); }
+        .log-area .log-info { color: var(--code-info); }
+        .log-area .log-err { color: var(--code-err); }
+        .log-area .log-ok { color: var(--code-ok); }
         .toast {
-            position: fixed;
-            bottom: calc(var(--nav-height) + 40px);
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            opacity: 0;
-            background-color: #323232;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            z-index: 99999;
-            transition: all .35s var(--ease-out-expo);
-            pointer-events: none;
-            max-width: 90vw;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: fixed; bottom: calc(var(--nav-height) + 40px); left: 50%;
+            transform: translateX(-50%) translateY(20px); opacity: 0;
+            background-color: #323232; color: white; padding: 12px 24px;
+            border-radius: 12px; font-size: 14px; z-index: 99999;
+            transition: all .35s var(--ease-out-expo); pointer-events: none;
+            max-width: 90vw; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         .hint-text {
-            font-size: 12px;
-            color: var(--md-sys-color-on-surface-variant);
-            margin-top: 4px;
-            line-height: 1.5;
+            font-size: 12px; color: var(--md-sys-color-on-surface-variant);
+            margin-top: 4px; line-height: 1.5;
         }
-        #renderCanvas {
-            display: none;
-        }
+        #renderCanvas { display: none; }
         .floating-progress {
-            position: fixed;
-            bottom: 120px;
-            right: 20px;
-            width: 280px;
-            border-radius: 20px;
-            padding: 14px 16px;
-            z-index: 10000;
-            background: var(--glass-surface-variant);
-            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.25);
+            position: fixed; bottom: 120px; right: 20px; width: 280px;
+            border-radius: 20px; padding: 14px 16px; z-index: 10000;
+            background: var(--glass-surface-variant); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.25);
             animation: slideInRight .4s var(--ease-out-expo);
             transition: opacity .25s, transform .25s;
+            touch-action: none;  /* 修复拖动灵敏度 */
         }
         @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         .floating-progress-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: grab;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px; cursor: grab;
+            font-size: 13px; font-weight: 600; margin-bottom: 10px;
             color: var(--md-sys-color-on-surface);
+            user-select: none; -webkit-user-select: none;
         }
-        .floating-progress-header:active {
-            cursor: grabbing;
-        }
+        .floating-progress-header:active { cursor: grabbing; }
         .floating-progress-header button {
-            margin-left: auto;
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin-left: auto; width: 28px; height: 28px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
         }
-        .floating-progress-header button:hover {
-            background-color: var(--md-sys-color-secondary-container);
-        }
-        .floating-progress-header button .material-icons {
-            font-size: 18px;
-        }
+        .floating-progress-header button:hover { background-color: var(--md-sys-color-secondary-container); }
+        .floating-progress-header button .material-icons { font-size: 18px; }
         .fp-title {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            font-size: 14px; font-weight: 500; margin-bottom: 4px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-        .fp-status {
-            font-size: 12px;
-            color: var(--md-sys-color-on-surface-variant);
-            margin-bottom: 8px;
-        }
+        .fp-status { font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 8px; }
         .fp-bar {
-            height: 6px;
-            border-radius: 3px;
-            background-color: var(--md-sys-color-surface);
-            overflow: hidden;
-            margin-bottom: 8px;
+            height: 6px; border-radius: 3px; background-color: var(--md-sys-color-surface);
+            overflow: hidden; margin-bottom: 8px;
         }
         .fp-fill {
-            height: 100%;
-            width: 0%;
-            border-radius: 3px;
-            background-color: var(--md-sys-color-primary);
-            transition: width .2s ease;
+            height: 100%; width: 0%; border-radius: 3px;
+            background-color: var(--md-sys-color-primary); transition: width .2s ease;
         }
         .fp-pct {
-            font-size: 18px;
-            font-weight: 600;
-            text-align: right;
+            font-size: 18px; font-weight: 600; text-align: right;
             color: var(--md-sys-color-primary);
         }
         .mini-progress-btn {
-            position: fixed;
-            bottom: calc(var(--nav-height) + 20px + env(safe-area-inset-bottom));
-            right: 20px;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9998;
-            background-color: var(--md-sys-color-primary);
-            color: var(--md-sys-color-on-primary);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            position: fixed; bottom: calc(var(--nav-height) + 20px + env(safe-area-inset-bottom));
+            right: 20px; width: 48px; height: 48px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9998; background-color: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
             animation: popIn .35s var(--ease-spring);
         }
-        .mini-progress-btn:hover {
-            transform: scale(1.08);
-        }
+        .mini-progress-btn:hover { transform: scale(1.08); }
         @keyframes popIn {
-            from {
-                opacity: 0;
-                transform: scale(.6);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(.6); }
+            to { opacity: 1; transform: scale(1); }
         }
         .render-focus-overlay {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 100000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 20px;
-            color: white;
-            padding: 24px;
+            position: fixed; inset: 0; background: #000; z-index: 100000;
+            display: none; align-items: center; justify-content: center;
+            flex-direction: column; gap: 20px; color: white; padding: 24px;
         }
-        .render-focus-overlay.active {
-            display: flex;
-        }
-        .render-focus .page-scroll,
-        .render-focus .bottom-nav,
-        .render-focus .mini-progress-btn,
-        .render-focus .floating-progress {
-            display: none !important;
-        }
-        .focus-title {
-            font-size: 22px;
-            font-weight: 600;
-            text-align: center;
-        }
-        .focus-status {
-            font-size: 14px;
-            opacity: 0.8;
-            text-align: center;
-        }
+        .render-focus-overlay.active { display: flex; }
+        .render-focus .page-scroll, .render-focus .bottom-nav,
+        .render-focus .mini-progress-btn, .render-focus .floating-progress { display: none !important; }
+        .focus-title { font-size: 22px; font-weight: 600; text-align: center; }
+        .focus-status { font-size: 14px; opacity: 0.8; text-align: center; }
         .focus-progress-bar {
-            width: min(80vw, 500px);
-            height: 10px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 6px;
-            overflow: hidden;
+            width: min(80vw, 500px); height: 10px; background: rgba(255, 255, 255, 0.15);
+            border-radius: 6px; overflow: hidden;
         }
         .focus-progress-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--md-sys-color-primary);
-            border-radius: 6px;
-            transition: width .25s ease;
+            height: 100%; width: 0%; background: var(--md-sys-color-primary);
+            border-radius: 6px; transition: width .25s ease;
         }
         .focus-pct {
-            font-size: 52px;
-            font-weight: 300;
-            font-variant-numeric: tabular-nums;
+            font-size: 52px; font-weight: 300; font-variant-numeric: tabular-nums;
             letter-spacing: -1px;
         }
         .focus-exit-btn {
-            margin-top: 10px;
-            padding: 8px 20px;
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            font-size: 13px;
-            background: transparent;
+            margin-top: 10px; padding: 8px 20px; border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3); color: white;
+            font-size: 13px; background: transparent;
         }
-        .focus-exit-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
+        .focus-exit-btn:hover { background: rgba(255, 255, 255, 0.1); }
         .token-warning {
-            background-color: var(--md-sys-color-warning);
-            color: #fff;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-top: 8px;
-            display: none;
-            line-height: 1.5;
+            background-color: var(--md-sys-color-warning); color: #fff;
+            padding: 10px 14px; border-radius: 12px; font-size: 12px;
+            font-weight: 500; margin-top: 8px; display: none; line-height: 1.5;
         }
-        .token-warning.visible {
-            display: block;
-        }
+        .token-warning.visible { display: block; }
         @media (min-width: 768px) {
-            .page-scroll {
-                padding: 24px;
-            }
-            .btn-row {
-                flex-wrap: nowrap;
-            }
+            .page-scroll { padding: 24px; }
+            .btn-row { flex-wrap: nowrap; }
         }
     </style>
 </head>
@@ -969,15 +673,15 @@
                 <div class="card-title"><span class="material-icons-outlined">key</span> API 配置</div>
                 <div class="form-group">
                     <label class="form-label">API Key</label>
-                    <md-outlined-text-field id="apiKeyInput" type="password" label="sk-xxxxxxxxxxxxxxxx" style="width:100%"></md-outlined-text-field>
+                    <input id="apiKeyInput" type="password" class="custom-input" placeholder="sk-xxxxxxxxxxxxxxxx">
                 </div>
                 <div class="form-group">
                     <label class="form-label">API 端点</label>
-                    <md-outlined-text-field id="endpointInput" value="https://api.deepseek.com/chat/completions" style="width:100%"></md-outlined-text-field>
+                    <input id="endpointInput" type="text" class="custom-input" value="https://api.deepseek.com/chat/completions">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Max Tokens（输出上限）</label>
-                    <md-outlined-text-field id="maxTokensInput" type="number" value="32768" style="width:100%"></md-outlined-text-field>
+                    <input id="maxTokensInput" type="number" class="custom-input" value="32768">
                     <div class="hint-text">范围 4096–131072。系统通过 AI 预估字数动态绘制进度条。</div>
                 </div>
             </div>
@@ -986,18 +690,18 @@
                 <div class="card-title"><span class="material-icons-outlined">tune</span> 生成设置</div>
                 <div class="form-group">
                     <label class="form-label">模型</label>
-                    <md-outlined-select id="modelSelect" value="deepseek-chat">
-                        <md-select-option value="deepseek-chat"><div slot="headline">deepseek-chat（V4 Flash）</div></md-select-option>
-                        <md-select-option value="deepseek-reasoner"><div slot="headline">deepseek-reasoner（V4 Pro 深度思考）</div></md-select-option>
-                    </md-outlined-select>
+                    <select id="modelSelect" class="custom-select">
+                        <option value="deepseek-chat">deepseek-chat（V4 Flash）</option>
+                        <option value="deepseek-reasoner">deepseek-reasoner（V4 Pro 深度思考）</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">响应字段处理</label>
-                    <md-outlined-select id="fieldModeSelect" value="auto">
-                        <md-select-option value="auto"><div slot="headline">自动（优先 content，为空回退 reasoning_content）</div></md-select-option>
-                        <md-select-option value="content"><div slot="headline">仅使用 content 字段</div></md-select-option>
-                        <md-select-option value="reasoning"><div slot="headline">仅使用 reasoning_content 字段</div></md-select-option>
-                    </md-outlined-select>
+                    <select id="fieldModeSelect" class="custom-select">
+                        <option value="auto">自动（优先 content，为空回退 reasoning_content）</option>
+                        <option value="content">仅使用 content 字段</option>
+                        <option value="reasoning">仅使用 reasoning_content 字段</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">生成风格</label>
@@ -1011,16 +715,16 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">创意提示词</label>
-                    <md-outlined-text-field id="promptInput" type="textarea" rows="3" label="描述你想要的视频内容..." style="width:100%"></md-outlined-text-field>
+                    <textarea id="promptInput" class="custom-textarea" rows="3" placeholder="描述你想要的视频内容..."></textarea>
                 </div>
-                <md-filled-button id="generateBtn" style="width:100%"><span class="material-icons" slot="icon">add</span> 加入生成队列</md-filled-button>
+                <button id="generateBtn" class="btn-filled" style="width:100%"><span class="material-icons">add</span> 加入生成队列</button>
             </div>
 
             <div class="card">
                 <div class="card-title"><span class="material-icons-outlined">settings</span> 渲染参数</div>
                 <div class="form-group">
                     <label class="form-label">视频时长 (秒) — 5 ~ 1200 秒</label>
-                    <md-outlined-text-field id="durationInput" type="number" value="8" min="5" max="1200" style="width:100%"></md-outlined-text-field>
+                    <input id="durationInput" type="number" class="custom-input" value="8" min="5" max="1200">
                     <div class="hint-text" id="durationHint">建议：5–30 秒 | 超过 30 秒将增加渲染时间和 Token 消耗</div>
                     <div class="chip-group" id="durationPresets" style="margin-top:8px">
                         <button class="chip" data-dur="5">5s</button>
@@ -1046,12 +750,12 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">分辨率</label>
-                    <md-outlined-select id="resolutionSelect" value="1080p">
-                        <md-select-option value="360p"><div slot="headline">360P</div></md-select-option>
-                        <md-select-option value="720p"><div slot="headline">720P</div></md-select-option>
-                        <md-select-option value="1080p" selected><div slot="headline">1080P</div></md-select-option>
-                        <md-select-option value="4k"><div slot="headline">4K（注意性能）</div></md-select-option>
-                    </md-outlined-select>
+                    <select id="resolutionSelect" class="custom-select">
+                        <option value="360p">360P</option>
+                        <option value="720p">720P</option>
+                        <option value="1080p" selected>1080P</option>
+                        <option value="4k">4K（注意性能）</option>
+                    </select>
                 </div>
             </div>
 
@@ -1129,8 +833,8 @@
                 <div class="log-area" id="walletLog" style="max-height:150px"></div>
             </div>
             <div class="btn-row">
-                <md-filled-button id="queryBalanceBtn"><span class="material-icons" slot="icon">refresh</span> 查询余额</md-filled-button>
-                <md-outlined-button id="clearWalletLogBtn"><span class="material-icons" slot="icon">clear_all</span> 清空记录</md-outlined-button>
+                <button id="queryBalanceBtn" class="btn-filled"><span class="material-icons">refresh</span> 查询余额</button>
+                <button id="clearWalletLogBtn" class="btn-outlined"><span class="material-icons">clear_all</span> 清空记录</button>
             </div>
         </div>
     </div>
@@ -1272,22 +976,15 @@
             r /= 255;
             g /= 255;
             b /= 255;
-            let max = Math.max(r, g, b),
-                min = Math.min(r, g, b);
+            let max = Math.max(r, g, b), min = Math.min(r, g, b);
             let h, s, l = (max + min) / 2;
             if (max === min) { h = s = 0; } else {
                 let d = max - min;
                 s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
                 switch (max) {
-                    case r:
-                        h = (g - b) / d + (g < b ? 6 : 0);
-                        break;
-                    case g:
-                        h = (b - r) / d + 2;
-                        break;
-                    case b:
-                        h = (r - g) / d + 4;
-                        break;
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
                 }
                 h /= 6;
             }
@@ -1295,9 +992,7 @@
         }
 
         function hslToHex(h, s, l) {
-            h /= 360;
-            s /= 100;
-            l /= 100;
+            h /= 360; s /= 100; l /= 100;
             let r, g, b;
             if (s === 0) { r = g = b = l; } else {
                 const hue2rgb = (p, q, t) => {
@@ -1531,18 +1226,12 @@
                 const ch = text[i];
                 if (ch === '\\') {
                     const n = text[i + 1];
-                    if (n === 'n') { out += '\n';
-                        i += 2; continue; }
-                    if (n === 't') { out += '\t';
-                        i += 2; continue; }
-                    if (n === 'r') { out += '\r';
-                        i += 2; continue; }
-                    if (n === '"') { out += '"';
-                        i += 2; continue; }
-                    if (n === '\\') { out += '\\';
-                        i += 2; continue; }
-                    if (n === '/') { out += '/';
-                        i += 2; continue; }
+                    if (n === 'n') { out += '\n'; i += 2; continue; }
+                    if (n === 't') { out += '\t'; i += 2; continue; }
+                    if (n === 'r') { out += '\r'; i += 2; continue; }
+                    if (n === '"') { out += '"'; i += 2; continue; }
+                    if (n === '\\') { out += '\\'; i += 2; continue; }
+                    if (n === '/') { out += '/'; i += 2; continue; }
                     if (n === 'u') {
                         const hex = text.slice(i + 2, i + 6);
                         const code = parseInt(hex, 16);
@@ -1903,8 +1592,7 @@
                 b.push(`<button data-action="cancel" data-id="${id}">取消</button>`);
             } else if (task.status === 'completed') {
                 b.push(`<button class="primary" data-action="preview" data-id="${id}">预览</button>`);
-                b.push(
-                    `<button data-action="check-balance" data-id="${id}">查余额</button>`);
+                b.push(`<button data-action="check-balance" data-id="${id}">查余额</button>`);
                 b.push(`<button data-action="delete" data-id="${id}">删除</button>`);
             } else if (task.status === 'failed' || task.status === 'aborted') {
                 b.push(`<button data-action="retry" data-id="${id}">重试</button>`);
@@ -2157,6 +1845,8 @@
             const p = renderProgressState;
             const pct = Math.min(100, Math.max(0, Math.round(p.progress * 100)));
             const pctStr = `${pct}%`;
+            
+            // 更新浮窗
             const ft = $('floatingTitle');
             if (ft) ft.textContent = p.taskTitle;
             const fs = $('floatingStatus');
@@ -2165,6 +1855,8 @@
             if (ff) ff.style.width = pctStr;
             const fp = $('floatingPct');
             if (fp) fp.textContent = pctStr;
+            
+            // 更新专注模式覆盖层
             if (document.body.classList.contains('render-focus')) {
                 const t = $('focusTitle');
                 if (t) t.textContent = p.taskTitle;
@@ -2174,6 +1866,29 @@
                 if (f) f.style.width = pctStr;
                 const pc = $('focusPct');
                 if (pc) pc.textContent = pctStr;
+            }
+
+            // 更新预览页中的进度条（原生自定义进度条）
+            const progressBar = $('renderProgress');
+            if (progressBar) {
+                const fill = progressBar.querySelector('.custom-progress-fill');
+                if (fill) {
+                    if (p.indeterminate) {
+                        fill.classList.add('indeterminate');
+                        fill.style.width = ''; 
+                    } else {
+                        fill.classList.remove('indeterminate');
+                        fill.style.width = pctStr;
+                    }
+                }
+            }
+            const progressText = $('progressText');
+            if (progressText) progressText.textContent = `${p.status} ${pctStr}`;
+            
+            // 显示专注模式按钮
+            const focusBtn = $('focusModeBtn');
+            if (focusBtn && renderProgressState.active) {
+                focusBtn.style.display = 'inline-flex';
             }
         }
 
@@ -2192,26 +1907,39 @@
         }
 
         function makeDraggable(element, handle) {
-            let offsetX = 0,
-                offsetY = 0,
-                isDragging = false;
+            let startX = 0,
+                startY = 0,
+                originLeft = 0,
+                originTop = 0,
+                dragging = false;
+            handle.style.touchAction = 'none';
             handle.addEventListener('pointerdown', (e) => {
                 if (e.target.closest('button')) return;
-                isDragging = true;
+                dragging = true;
                 const rect = element.getBoundingClientRect();
-                offsetX = e.clientX - rect.left;
-                offsetY = e.clientY - rect.top;
+                originLeft = rect.left;
+                originTop = rect.top;
+                startX = e.clientX;
+                startY = e.clientY;
                 handle.setPointerCapture(e.pointerId);
                 e.preventDefault();
             });
             handle.addEventListener('pointermove', (e) => {
-                if (!isDragging) return;
-                element.style.left = `${e.clientX - offsetX}px`;
-                element.style.top = `${e.clientY - offsetY}px`;
+                if (!dragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                element.style.left = `${originLeft + dx}px`;
+                element.style.top = `${originTop + dy}px`;
                 element.style.right = 'auto';
                 element.style.bottom = 'auto';
+                e.preventDefault();
             });
-            handle.addEventListener('pointerup', () => { isDragging = false; });
+            handle.addEventListener('pointerup', () => {
+                dragging = false;
+            });
+            handle.addEventListener('pointercancel', () => {
+                dragging = false;
+            });
         }
 
         function switchPage(page) {
@@ -2247,23 +1975,23 @@
           <div class="preview-container" id="previewContainer"></div>
           <div class="hint-text" style="margin-bottom:12px">时长 ${taskDuration}s · 帧数约 ${totalFrames.toLocaleString()} · 风格 ${escapeHtml(task.config?.style || 'vibe')} · 模型 ${escapeHtml(task.config?.model || 'deepseek-chat')}</div>
           <div class="progress-wrap" id="progressWrap" style="display:none">
-            <md-linear-progress id="renderProgress" value="0"></md-linear-progress>
+            <div class="custom-progress" id="renderProgress"><div class="custom-progress-fill" id="renderProgressFill"></div></div>
             <div class="hint-text" id="progressText" style="text-align:center;margin-top:6px">准备中...</div>
             <button id="focusModeBtn" style="display:none;margin-top:8px;" class="chip active">专注模式</button>
           </div>
-          <div class="btn-row">
-            <md-outlined-button id="togglePlayBtn"><span class="material-icons" slot="icon">pause</span>暂停预览</md-outlined-button>
-            <md-filled-button id="exportBtn"><span class="material-icons" slot="icon">download</span>导出 MP4 (${res.w}x${res.h} · ${state.fps}fps · ${taskDuration}s)</md-filled-button>
-          </div>
           <div class="btn-row" style="margin-top:8px">
-            <md-outlined-button id="cancelRenderBtn" style="display:none"><span class="material-icons" slot="icon">cancel</span>取消渲染</md-outlined-button>
+            <button id="cancelRenderBtn" class="btn-outlined" style="display:none"><span class="material-icons">cancel</span>取消渲染</button>
+          </div>
+          <div class="btn-row">
+            <button id="togglePlayBtn" class="btn-outlined"><span class="material-icons">pause</span>暂停预览</button>
+            <button id="exportBtn" class="btn-filled"><span class="material-icons">download</span>导出 MP4 (${res.w}x${res.h} · ${state.fps}fps · ${taskDuration}s)</button>
           </div>
         </div>
         <div class="card">
           <div class="card-title"><span class="material-icons-outlined">code</span>生成的 HTML 代码</div>
           <div class="log-area" style="max-height:300px;color:var(--code-string)" id="previewCodeArea">${escapeHtml(task.html)}</div>
           <div class="btn-row" style="margin-top:12px">
-            <md-outlined-button id="copyHtmlBtn"><span class="material-icons" slot="icon">content_copy</span>复制代码</md-outlined-button>
+            <button id="copyHtmlBtn" class="btn-outlined"><span class="material-icons">content_copy</span>复制代码</button>
           </div>
         </div>
       `;
@@ -2319,9 +2047,8 @@
         function updateTogglePlayBtnUI() {
             const btn = $('togglePlayBtn');
             if (!btn) return;
-            if (state.isPreviewPlaying) btn.innerHTML =
-                '<span class="material-icons" slot="icon">pause</span> 暂停预览';
-            else btn.innerHTML = '<span class="material-icons" slot="icon">play_arrow</span> 继续播放';
+            if (state.isPreviewPlaying) btn.innerHTML = '<span class="material-icons">pause</span> 暂停预览';
+            else btn.innerHTML = '<span class="material-icons">play_arrow</span> 继续播放';
         }
 
         async function exportTaskMp4(task) {
@@ -2550,8 +2277,19 @@
             document.querySelectorAll('.color-dot').forEach(dot => dot.addEventListener('click', () => theme.setPrimaryColor(
                 dot.dataset.color)));
             document.querySelectorAll('.theme-toggle').forEach(btn => btn.addEventListener('click', () => theme.toggle()));
-            const saved = localStorage.getItem('ai-video-maxtokens');
-            if (saved && $('maxTokensInput')) $('maxTokensInput').value = saved;
+
+            // API Key 持久化
+            const apiKeyInput = $('apiKeyInput');
+            if (apiKeyInput) {
+                const savedKey = localStorage.getItem('ai-video-api-key');
+                if (savedKey) apiKeyInput.value = savedKey;
+                apiKeyInput.addEventListener('input', () => {
+                    try { localStorage.setItem('ai-video-api-key', apiKeyInput.value.trim() || ''); } catch {}
+                });
+            }
+            const savedTokens = localStorage.getItem('ai-video-maxtokens');
+            if (savedTokens && $('maxTokensInput')) $('maxTokensInput').value = savedTokens;
+
             document.querySelectorAll('.bottom-nav-item').forEach(btn => btn.addEventListener('click', () => switchPage(btn
                 .dataset.page)));
             document.querySelectorAll('.style-chip').forEach(chip => chip.addEventListener('click', () => {
