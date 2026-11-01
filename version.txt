@@ -1,0 +1,7 @@
+_head_
+version:"Release 1.0.0"
+version_id:20100
+update_log_markdown:false
+update_log:"VAI正式有了Android客户端版本，渲染速度大提升！适配和体验进一步优化！在新版本难免有一些bug，欢迎各位反馈！"
+download_link:"https://gh-proxy.org/https://github.com/CetaCh/VAI/releases/download/v1.0.0Release/VidAI.apk"
+_end_
