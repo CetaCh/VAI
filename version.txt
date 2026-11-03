@@ -1,7 +1,31 @@
 _head_
-version:"Release 1.0.1"
-version_id:20101
-update_log_markdown:false
-update_log:"修复一些bug"
-download_link:"https://gh-proxy.org/https://github.com/CetaCh/VAI/releases/download/Release/VidAI.apk"
+version:"Release 1.1.0"
+version_id:20110
+update_log_markdown:true
+update_log:"## Release 1.1.0
+
+### 新增
+- **渲染方式可选**：自动 / OpenGL ES / Vulkan / 软件渲染 / WebCodecs / 逐帧截图
+  - 每种方式显示可用性与不可用原因
+  - 偏好不可用时导出前明确提示，并自动回退到可用后端
+  - 导出记录实际使用的后端
+- **渲染性能统计**：渲染中实时显示 **fps** 与 **像素/秒**，导出结束后记录平均编码帧率
+- **生成速率**：AI 生成时实时显示 **token/s**
+- **启动自动检查更新**：发现新版本时弹窗展示更新日志，并按网络情况提示流量消耗
+- **预置场景**：内置星云粒子示例，无需 API Key 即可验证导出链路
+- **导入 HTML 渲染**：支持粘贴源码或选择文件，导入前填写时长与帧率
+
+### 优化
+- 渲染管线改为流水线：主线程合成、GPU 上传、编码三者重叠，最多 3 帧在飞
+- 渲染期间关闭高斯模糊、阴影与动画，把 GPU 资源让给编码
+- 进度刷新提升至约 30Hz
+
+### 修复
+- 导出时 WebView 跨线程调用失败
+- 第 0 帧合成超时（主线程自锁）
+- 编码器 not a PersistentSurface
+- 设置图标不显示、系统返回直接退出、底栏高斯模糊缺失
+- 状态栏遮挡内容、顶栏标题溢出、emoji 图标
+- version.txt 多行 update_log 被截断（现支持多行 Markdown）"
+download_link:"https://gh-proxy.org/https://github.com/CetaCh/VAI/releases/download/v1.1.0/VidAI.apk"
 _end_
