@@ -28,5 +28,5 @@ update_log:"非常抱歉最近的频繁更新！
 - 预取流水线：JS 合成与 GPU 编码并行
 - 多段式进度条与实时 fps / MPixel/s
 - 更新弹窗支持 Markdown 且可滚动"
-download_link:"https://gh-proxy.org/https://github.com/CetaCh/VAI/releases/download/v1.1.1.0002/VidAI.apk"
+download_link:"https://gh-proxy.org/https://github.com/CetaCh/VAI/releases/download/v1.1.1.002/VidAI.apk"
 _end_
