@@ -1,31 +1,28 @@
 _head_
-version:"Release 1.1.1"
-version_id:20111
+version:"Release 1.1.1.001"
+version_id:20112
 update_log_markdown:true
-update_log:"## Release 1.1.1
+update_log:"> 本版本修复了 1.1.1 中的三个阻断性问题，建议**立即安装**。
+> 本版本修复了 1.1.1 中的三个阻断性问题，建议**立即安装**。
+> 本版本修复了 1.1.1 中的三个阻断性问题，建议**立即安装**。
 
-### 性能（重点）
-- **渲染管线改为预取流水线**：不再「等这一帧合成完才投递 GPU」，改为持续预取 + 有界队列，让 JS 合成与 GPU 编码真正并行
-- 默认在飞 6 帧，可在设置页调为 3 / 6 / 9 / 12 —— 越大越能填满 GPU 流水线
-- 修复 HTML 越长越慢的根因：合成与消费解耦后，JS 执行耗时不再阻塞 GPU 空闲等待
+## 🚨 紧急更新 Release 1.1.1.001
 
-### 新增
-- **多段式进度条**：每段代表一个并发槽位，可直观看到并行度与在飞帧数
-- 渲染浮窗实时显示 fps、MPixel/s、在飞帧数、队列占用
+> 本版本修复了 1.1.1 中的三个阻断性问题，建议**立即安装**。
 
-### Vulkan
-- 增强 Vulkan 能力探测：运行库、厂商驱动、系统 feature 三级判定，报告具体原因
-- 本构建未包含 Vulkan 原生后端（需要 NDK 编译的 .so），设备支持时会如实标注并回退到 OpenGL ES
+### 紧急修复
+- **修复渲染卡在「准备渲染…」**：WebView 未挂载到窗口时，部分机型 `onPageFinished` 永不回调，导致导出一直等待。现已将渲染用 WebView 以不可见方式挂载，并补充加载超时诊断
+- **修复预览无法暂停/继续**：按钮事件只在页面首次渲染时绑定，切换页面后被重建而丢失绑定。现已改为事件委托，任何情况下都能响应
+- **修复渲染时预览未自动暂停**：渲染开始会自动暂停预览，避免抢占 GPU 与主线程
 
-### 优化
-- 进度刷新提升到约 30Hz
-- 渲染中关闭高斯模糊与动画
+### 界面修复
+- **更新弹窗支持 Markdown**：强制更新与检查更新原本把更新日志当纯文本塞入，现在按 Markdown 正确渲染标题、列表与加粗
+- **更新弹窗可滚动**：长更新日志不再撑破屏幕。头部与按钮固定，仅内容区滚动
 
-### 有关该版本的调试信息
-- Release v1.1.1
-- Android ORP signed
-- Pubulishing time:11/7/2026 12:14 UTC
-- Pack internal version number(Global):11072026 Release v1.1.1 AndroidORP signed webviewinside CRedorenderAlpha1.18.30560 Notfordev.
-- - Pack internal version number(CN):20261107 Release v1.1.1 AndroidORP signed webviewinside CRedorenderAlpha1.18.30560 Notfordev."
-download_link:"https://gh-proxy.org/https://github.com/CetaCh/VAI/releases/download/v1.1.1/VidAI.apk"
+### 承袭 1.1.1
+- 预取流水线：JS 合成与 GPU 编码真正并行，不再逐帧相互等待
+- 并发深度可调（3 / 6 / 9 / 12），越大越能填满 GPU
+- 多段式进度条，实时显示 fps、MPixel/s、在飞帧数
+- Vulkan 三级能力探测（运行库 / 厂商驱动 / 系统 feature）"
+download_link:"https://gh-proxy.org/https://github.com/CetaCh/VAI/releases/download/v1.1.1.001/VidAI.apk"
 _end_
